@@ -5,12 +5,13 @@ using UnityEngine;
 public class Movement : MonoBehaviour
 {
     Rigidbody myRigidbody;
+    AudioSource myAudioSource;
     [SerializeField] float mainThrust = 10f;
     [SerializeField] float rotationThrust = 1f;
-
     void Awake() 
     {
         myRigidbody = GetComponent<Rigidbody>();
+        myAudioSource = GetComponent<AudioSource>();
     }
     void Update()
     {
@@ -24,6 +25,14 @@ public class Movement : MonoBehaviour
         {
             float thrustSpeed = mainThrust * Time.deltaTime;
             myRigidbody.AddRelativeForce(Vector3.up * thrustSpeed);
+            if (!myAudioSource.isPlaying)
+            {
+                myAudioSource.Play();
+            }
+        }
+        else
+        {
+            myAudioSource.Stop();
         }
     }
 
