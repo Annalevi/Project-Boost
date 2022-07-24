@@ -5,26 +5,56 @@ using UnityEngine.SceneManagement;
 
 public class CollisionHandler : MonoBehaviour
 {
-    Movement movement;
     [SerializeField] float levelLoadDelay = 1f;
+    [SerializeField] AudioClip successAudio;
+    [SerializeField] AudioClip crashAudio;
+    [SerializeField] ParticleSystem successParticles;
+    [SerializeField] ParticleSystem crashParticles;
+
+    Movement movement;
+    AudioSource myAudioSource;
+
+    bool isTransitioning = false;
+    bool collisionDisabled = false;
 
     void Awake() 
     {
-        movement = GetComponent<Movement>();    
+        movement = GetComponent<Movement>();  
+        myAudioSource = GetComponent<AudioSource>(); 
+    }
+
+    void Update()
+    {
+        RespodToDebugKeys();
+    }
+
+    void RespodToDebugKeys()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            LoadNextLevel();
+        }
+
+        else if (Input.GetKeyDown(KeyCode.C))
+        {
+            collisionDisabled = !collisionDisabled;
+            
+        }
     }
 
     void OnCollisionEnter(Collision other) 
     {
+        if (isTransitioning || collisionDisabled) {return;}
         switch (other.gameObject.tag)
         {
             case "Friendly":
                 Debug.Log("Friendly");
                 break;
-
+    
             case "Finish":
                 StartSuccessSequence();
                 break;
-
+    
             default:
                 StartCrashSequence();
                 break;
@@ -33,13 +63,21 @@ public class CollisionHandler : MonoBehaviour
 
     void StartSuccessSequence()
     {
+        isTransitioning = true;
         movement.enabled = false;
+        successParticles.Play();
+        myAudioSource.Stop();
+        myAudioSource.PlayOneShot(successAudio);
         Invoke("LoadNextLevel", levelLoadDelay);
     }
 
     void StartCrashSequence()
     {
+        isTransitioning = true;
         movement.enabled = false;
+        crashParticles.Play();
+        myAudioSource.Stop();
+        myAudioSource.PlayOneShot(crashAudio);
         Invoke("ReloadLevel", levelLoadDelay);
     }
 

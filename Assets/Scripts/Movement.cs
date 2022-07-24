@@ -4,15 +4,21 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
-    Rigidbody myRigidbody;
-    AudioSource myAudioSource;
     [SerializeField] float mainThrust = 10f;
     [SerializeField] float rotationThrust = 1f;
+    [SerializeField] AudioClip rocketThrust;
+    [SerializeField] ParticleSystem rocketParticles;
+    [SerializeField] ParticleSystem leftSideThrusterParticles;
+    [SerializeField] ParticleSystem rightSideThrusterParticles;
+
+    Rigidbody myRigidbody;
+    AudioSource myAudioSource;
     void Awake() 
     {
         myRigidbody = GetComponent<Rigidbody>();
         myAudioSource = GetComponent<AudioSource>();
     }
+
     void Update()
     {
         ProcessThrust();
@@ -23,16 +29,11 @@ public class Movement : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Space))
         {
-            float thrustSpeed = mainThrust * Time.deltaTime;
-            myRigidbody.AddRelativeForce(Vector3.up * thrustSpeed);
-            if (!myAudioSource.isPlaying)
-            {
-                myAudioSource.Play();
-            }
+            StartThrusting();
         }
         else
         {
-            myAudioSource.Stop();
+            StopThrusting();
         }
     }
 
@@ -40,12 +41,56 @@ public class Movement : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.A))
         {
-            ApplyRotation(rotationThrust);
+
+            RotateLeft();
         }
 
         else if (Input.GetKey(KeyCode.D))
         {
-            ApplyRotation(-rotationThrust);
+
+            RotateRight();
+        }
+        else
+        {
+            StopRotating();
+        }
+    }
+
+    void StartThrusting()
+    {
+        float thrustSpeed = mainThrust * Time.deltaTime;
+        myRigidbody.AddRelativeForce(Vector3.up * thrustSpeed);
+        if (!myAudioSource.isPlaying)
+        {
+            myAudioSource.PlayOneShot(rocketThrust);
+        }
+        if (!rocketParticles.isPlaying)
+        {
+            rocketParticles.Play();
+        }
+    }
+
+    void StopThrusting()
+    {
+        rocketParticles.Stop();
+        myAudioSource.Stop();
+    }
+
+    void RotateLeft()
+    {
+        ApplyRotation(rotationThrust);
+        if (!rightSideThrusterParticles.isPlaying)
+        {
+            rightSideThrusterParticles.Play();
+        }
+    }
+
+    void RotateRight()
+    {
+        ApplyRotation(-rotationThrust);
+        if (!leftSideThrusterParticles.isPlaying)
+        {
+            leftSideThrusterParticles.Play();
         }
     }
 
@@ -56,4 +101,11 @@ public class Movement : MonoBehaviour
         transform.Rotate(Vector3.forward * rotationSpeed);
         myRigidbody.freezeRotation = false;
     }
+
+    void StopRotating()
+    {
+        rightSideThrusterParticles.Stop();
+        leftSideThrusterParticles.Stop();
+    }
+
 }
