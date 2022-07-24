@@ -4,15 +4,18 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
-    Rigidbody myRigidbody;
-    AudioSource myAudioSource;
     [SerializeField] float mainThrust = 10f;
     [SerializeField] float rotationThrust = 1f;
+    [SerializeField] AudioClip rocketThrust;
+
+    Rigidbody myRigidbody;
+    AudioSource myAudioSource;
     void Awake() 
     {
         myRigidbody = GetComponent<Rigidbody>();
         myAudioSource = GetComponent<AudioSource>();
     }
+    
     void Update()
     {
         ProcessThrust();
@@ -27,7 +30,7 @@ public class Movement : MonoBehaviour
             myRigidbody.AddRelativeForce(Vector3.up * thrustSpeed);
             if (!myAudioSource.isPlaying)
             {
-                myAudioSource.Play();
+                myAudioSource.PlayOneShot(rocketThrust);
             }
         }
         else
