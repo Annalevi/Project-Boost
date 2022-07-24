@@ -15,6 +15,7 @@ public class CollisionHandler : MonoBehaviour
     AudioSource myAudioSource;
 
     bool isTransitioning = false;
+    bool collisionDisabled = false;
 
     void Awake() 
     {
@@ -22,9 +23,28 @@ public class CollisionHandler : MonoBehaviour
         myAudioSource = GetComponent<AudioSource>(); 
     }
 
+    void Update()
+    {
+        RespodToDebugKeys();
+    }
+
+    void RespodToDebugKeys()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            LoadNextLevel();
+        }
+
+        else if (Input.GetKeyDown(KeyCode.C))
+        {
+            collisionDisabled = !collisionDisabled;
+            
+        }
+    }
+
     void OnCollisionEnter(Collision other) 
     {
-        if (isTransitioning) {return;}
+        if (isTransitioning || collisionDisabled) {return;}
         switch (other.gameObject.tag)
         {
             case "Friendly":
